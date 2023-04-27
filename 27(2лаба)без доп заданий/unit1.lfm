@@ -1,0 +1,99 @@
+object Form1: TForm1
+  Left = 311
+  Height = 353
+  Top = 113
+  Width = 378
+  Caption = 'Form1'
+  ClientHeight = 353
+  ClientWidth = 378
+  OnCreate = FormCreate
+  LCLVersion = '2.2.6.0'
+  object Label1: TLabel
+    Left = 56
+    Height = 32
+    Top = 8
+    Width = 264
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Выберите страну, введите количество фунтов и щёлкните по кнопке Вычислить '
+    Font.CharSet = RUSSIAN_CHARSET
+    Font.Color = clTeal
+    Font.Height = -13
+    Font.Name = 'Century'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = Label1Click
+  end
+  object Label2: TLabel
+    Left = 56
+    Height = 16
+    Top = 64
+    Width = 44
+    Caption = 'Страна'
+    Font.CharSet = RUSSIAN_CHARSET
+    Font.Name = 'Century'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 56
+    Height = 16
+    Top = 216
+    Width = 42
+    Caption = 'Фунтов'
+    Font.CharSet = RUSSIAN_CHARSET
+    Font.Name = 'Century'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 16
+    Height = 40
+    Top = 264
+    Width = 347
+    AutoSize = False
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 136
+    Height = 25
+    Top = 312
+    Width = 88
+    Caption = 'Вычислить'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Edit1: TEdit
+    Left = 113
+    Height = 23
+    Top = 208
+    Width = 223
+    OnChange = Edit1Change
+    TabOrder = 1
+  end
+  object ListBox1: TListBox
+    Left = 144
+    Height = 129
+    Top = 64
+    Width = 136
+    Items.Strings = (
+      'Россия'
+      'Англия'
+      'Австрия'
+      'Германия'
+      'Дания'
+      'Исландия'
+      'Италия'
+      'Нидерланды'
+    )
+    ItemHeight = 15
+    TabOrder = 2
+  end
+end
