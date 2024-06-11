@@ -1,1 +1,59 @@
 https://www.google.com/search?q=%D0%BA%D0%B0%D0%BA+%D0%BD%D0%B0%D0%BF%D0%B8%D1%81%D0%B0%D1%82%D1%8C+%D0%BA%D0%BE%D0%B4+%D1%87%D1%82%D0%BE%D0%B1%D1%8B+%D0%B8%D0%B7+%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B+%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D1%8F%D0%BB+%D0%BD%D0%B0+%D0%BF%D0%BE%D1%87%D1%82%D1%83+%D0%BB%D0%B0%D0%B7%D0%B0%D1%80%D1%83%D1%81&rlz=1C1GCEB_enRU1051RU1051&ei=kHBsZIf6DOmyrgTh_ojYAQ&start=10&sa=N&ved=2ahUKEwiHgtLE-or_AhVpmYsKHWE_AhsQ8tMDegQIEhAE&biw=1920&bih=969&dpr=1#fpstate=ive&vld=cid:e1c32ace,vid:qYKjDrIjDVs
+DELIMITER //
+
+-- Функция для расчета себестоимости партии
+CREATE FUNCTION CalculateCost(idModel INT, batchCount INT) RETURNS DECIMAL(10,2)
+BEGIN
+    DECLARE costPerMeter DECIMAL(10,2);
+    DECLARE meterSizeModel DECIMAL(10,2);
+    DECLARE totalCost DECIMAL(10,2);
+
+    -- Получаем размер ткани на одну единицу модели
+    SELECT meterSize INTO meterSizeModel FROM model WHERE id = idModel;
+    -- Получаем стоимость ткани на метр
+    SELECT price INTO costPerMeter FROM textile WHERE id = (SELECT idTextile FROM model WHERE id = idModel);
+    -- Рассчитываем общую стоимость
+    SET totalCost = costPerMeter * meterSizeModel * batchCount;
+    RETURN totalCost;
+END //
+
+-- Хранимая процедура для учета заказов
+CREATE PROCEDURE OrderFabrication(IN idModel INT, IN batchCount INT)
+BEGIN
+    DECLARE neededFabric DECIMAL(10,2);
+    DECLARE availableFabric INT;
+    DECLARE cost DECIMAL(10,2);
+    DECLARE profit DECIMAL(10,2);
+
+    -- Проверяем наличие ткани
+    SELECT count INTO availableFabric FROM textile WHERE id = (SELECT idTextile FROM model WHERE id = idModel);
+    SELECT meterSize INTO neededFabric FROM model WHERE id = idModel;
+
+    -- Проверяем, достаточно ли ткани для партии
+    IF neededFabric * batchCount <= availableFabric THEN
+        -- Рассчитываем себестоимость партии
+        SET cost = CalculateCost(idModel, batchCount);
+        -- Списываем ткань
+        UPDATE textile SET count = count - (neededFabric * batchCount) WHERE id = (SELECT idTextile FROM model WHERE id = idModel);
+        -- Добавляем запись в таблицу fabrication
+        INSERT INTO fabrication (idModel, count, cost) VALUES (idModel, batchCount, cost);
+        -- Рассчитываем прибыль
+        SET profit = cost * 1.25;
+        -- Добавляем запись в таблицу accounting
+        INSERT INTO accounting (idFabric, profit) VALUES (LAST_INSERT_ID(), profit);
+        -- Выводим информацию о заказе
+        SELECT 'Заказ на пошив партии одежды успешно добавлен.' AS message;
+    ELSE
+        -- Выводим сообщение об ошибке
+        SELECT 'Недостаточно ткани для пошива партии.' AS error;
+    END IF;
+END //
+
+-- Триггер для отслеживания добавления записей в таблицу fabrication
+CREATE TRIGGER AfterFabricationInsert AFTER INSERT ON fabrication
+FOR EACH ROW
+BEGIN
+    CALL OrderFabrication(NEW.idModel, NEW.count);
+END //
+
+DELIMITER ;
