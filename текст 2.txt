@@ -118,3 +118,48 @@ if __name__ == "__main__":
     wind = Main()
     wind.show()
     sys.exit(app.exec())
+
+
+import MySQLdb as mdb
+from PyQt6 import QtWidgets
+from form import Ui_Form
+
+# Установим подключение к базе данных
+db = mdb.connect(host='localhost', user='root', password='', database='Rylon')
+
+class Main(QtWidgets.QMainWindow, Ui_Form):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.pushButton.clicked.connect(self.zakaz)
+        self.populateModelComboBox()
+
+    def populateModelComboBox(self):
+        models = self.fetchModels()
+        for model in models:
+            self.comboBox.addItem(model[1])
+
+    def fetchModels(self):
+        with db.cursor() as cur:
+            cur.execute("SELECT id, name FROM model")
+            return cur.fetchall()
+
+    def zakaz(self):
+        modelName = self.comboBox.currentText()
+        batchCount = self.lineEdit.text()
+        result = self.orderFabrication(modelName, batchCount)
+        self.label.setText(f"Итог: {result}")
+
+    def orderFabrication(self, modelName, batchCount):
+        with db.cursor() as cur:
+            cur.execute("CALL OrderFabrication(%s, %s)", (modelName, batchCount))
+            result = cur.fetchall()
+            db.commit()
+        return result
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    window = Main()
+    window.show()
+    sys.exit(app.exec())
