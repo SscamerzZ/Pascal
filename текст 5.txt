@@ -1,1 +1,32 @@
-В ходе практики проявил теоретические и практические знания по конфигурированию и администрированию баз данных, обеспечил внесение необходимых улучшений в разработанный в рамках выданных заданий прототип системы учета объемно-декоративных конструкций. Усидчив, к поставленным задачам относится ответственно. Рекомендуется дальнейшее практическое решение задач, связанных с созданием и внедрением информационных систем и сервисов.
+CREATE TABLE textile (
+    id int AUTO_INCREMENT PRIMARY KEY,
+    name varchar(50),
+    price decimal(10,2),
+    count int);
+    
+CREATE TABLE model (
+    id int AUTO_INCREMENT PRIMARY KEY,
+    idTextile int,
+    name varchar(50),
+    meterSize decimal(10,2),
+    FOREIGN KEY (idTextile) REFERENCES textile(id));
+    
+CREATE TABLE fabrication (
+    id int AUTO_INCREMENT PRIMARY KEY,
+    idModel int,
+    count int,
+    cost decimal(10,2),
+    datetime1 datetime,
+    FOREIGN KEY (idModel) REFERENCES model(id));
+    
+CREATE TABLE accounting (
+    id int AUTO_INCREMENT PRIMARY KEY,
+    idFabric int,
+    profit decimal(10,2),
+    datetime1 datetime,
+    FOREIGN KEY (idFabric) REFERENCES fabrication(id));
+
+INSERT INTO `textile` (`id`, `name`, `price`, `count`) VALUES ('1', 'Джинса', '80', '2000'), ('2', 'Хлопок', '120', '18000');
+INSERT INTO `model` (`id`, `idTextile`, `name`, `meterSize`) VALUES ('3', '1', 'Куртка джинсовая', '2'), ('4', '1', 'Рубашка джинсовая', '1.5'), ('15', '2', 'Рубашка из хлопка', '2');
+INSERT INTO `fabrication` (`id`, `idModel`, `count`, `cost`, `datetime1`) VALUES ('1', '3', '70', '11200', NULL), ('2', '15', '55', '13200', NULL);
+INSERT INTO `accounting` (`id`, `idFabric`, `profit`, `datetime1`) VALUES ('1', '1', '2800', NULL), ('2', '2', '3300', NULL);
